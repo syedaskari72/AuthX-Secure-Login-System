@@ -33,7 +33,7 @@ const ForgotPassword = () => {
     e.preventDefault();
 
     if (!identifier) {
-      toast.error('Please enter your email or phone number');
+      toast.error('Please enter your email');
       return;
     }
 
@@ -47,7 +47,7 @@ const ForgotPassword = () => {
           <h1 className="text-4xl font-bold text-primary-600 mb-2">🔐 AuthX</h1>
           <h2 className="text-3xl font-bold text-gray-900">Forgot Password?</h2>
           <p className="mt-2 text-gray-600">
-            Enter your email or phone number to receive an OTP
+            Enter your email to receive an OTP
           </p>
         </div>
 
@@ -55,16 +55,16 @@ const ForgotPassword = () => {
           <form onSubmit={onSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email or Phone Number
+                Email Address
               </label>
               <div className="relative">
                 <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
-                  type="text"
+                  type="email"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   className="input-field pl-10"
-                  placeholder="john@example.com or +1234567890"
+                  placeholder="john@example.com"
                   required
                 />
               </div>

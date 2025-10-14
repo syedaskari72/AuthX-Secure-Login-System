@@ -4,20 +4,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signup, reset } from '../redux/slices/authSlice';
 import toast from 'react-hot-toast';
 import Loader from '../components/Loader';
-import { FiUser, FiMail, FiPhone, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { name, email, phone, password, confirmPassword } = formData;
+  const { name, email, password, confirmPassword } = formData;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -50,7 +49,7 @@ const Signup = () => {
     e.preventDefault();
 
     // Validation
-    if (!name || !email || !phone || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -65,16 +64,9 @@ const Signup = () => {
       return;
     }
 
-    // Phone validation (basic)
-    if (!phone.startsWith('+')) {
-      toast.error('Phone number must include country code (e.g., +1234567890)');
-      return;
-    }
-
     const userData = {
       name,
       email,
-      phone,
       password,
     };
 
@@ -126,27 +118,6 @@ const Signup = () => {
                   required
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
-              </label>
-              <div className="relative">
-                <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="tel"
-                  name="phone"
-                  value={phone}
-                  onChange={onChange}
-                  className="input-field pl-10"
-                  placeholder="+1234567890"
-                  required
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Include country code (e.g., +1 for US)
-              </p>
             </div>
 
             <div>

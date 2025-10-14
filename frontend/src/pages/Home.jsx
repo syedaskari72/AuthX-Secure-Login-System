@@ -67,16 +67,7 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="card text-center">
-            <div className="flex justify-center mb-4">
-              <FiSmartphone className="text-5xl text-primary-600" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Phone OTP</h3>
-            <p className="text-gray-600">
-              Receive verification codes via SMS using Twilio API integration
-            </p>
-          </div>
-
+      
           <div className="card text-center">
             <div className="flex justify-center mb-4">
               <FiLock className="text-5xl text-primary-600" />
@@ -129,7 +120,6 @@ const Home = () => {
                 <li>✓ MongoDB with Mongoose</li>
                 <li>✓ JWT Authentication</li>
                 <li>✓ Nodemailer for Email</li>
-                <li>✓ Twilio for SMS</li>
               </ul>
             </div>
           </div>

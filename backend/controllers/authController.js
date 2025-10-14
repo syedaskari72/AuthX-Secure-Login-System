@@ -2,7 +2,6 @@ import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
 import generateOTP from '../utils/generateOTP.js';
 import sendEmail from '../utils/sendEmail.js';
-import sendSMS from '../utils/sendSMS.js';
 import { otpEmailTemplate, resetPasswordEmailTemplate } from '../utils/emailTemplates.js';
 
 // @desc    Register user
@@ -10,10 +9,10 @@ import { otpEmailTemplate, resetPasswordEmailTemplate } from '../utils/emailTemp
 // @access  Public
 export const signup = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, password } = req.body;
 
     // Validate input
-    if (!name || !email || !phone || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
         message: 'Please provide all required fields',
@@ -21,23 +20,13 @@ export const signup = async (req, res) => {
     }
 
     // Check if user already exists
-    const userExists = await User.findOne({
-      $or: [{ email }, { phone }],
-    });
+    const userExists = await User.findOne({ email });
 
     if (userExists) {
-      if (userExists.email === email) {
-        return res.status(400).json({
-          success: false,
-          message: 'Email already registered',
-        });
-      }
-      if (userExists.phone === phone) {
-        return res.status(400).json({
-          success: false,
-          message: 'Phone number already registered',
-        });
-      }
+      return res.status(400).json({
+        success: false,
+        message: 'Email already registered',
+      });
     }
 
     // Generate OTP
@@ -48,7 +37,6 @@ export const signup = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      phone,
       password,
     });
 
@@ -65,14 +53,8 @@ export const signup = async (req, res) => {
       html: otpEmailTemplate(user.name, otp),
     });
 
-    // Send OTP via SMS
-    const smsResult = await sendSMS(
-      user.phone,
-      `Your AuthX verification code is: ${otp}. Valid for 5 minutes.`
-    );
-
-    // Check if at least one method succeeded
-    if (!emailResult.success && !smsResult.success) {
+    // Check if email sending succeeded
+    if (!emailResult.success) {
       return res.status(500).json({
         success: false,
         message: 'Failed to send OTP. Please try again.',
@@ -81,11 +63,10 @@ export const signup = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful! OTP sent to your email and phone.',
+      message: 'Registration successful! OTP sent to your email.',
       data: {
         userId: user._id,
         email: user.email,
-        phone: user.phone,
       },
     });
   } catch (error) {
@@ -172,7 +153,6 @@ export const verifyOTP = async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
-          phone: user.phone,
           isVerified: user.isVerified,
         },
       },
@@ -233,14 +213,8 @@ export const resendOTP = async (req, res) => {
       html: otpEmailTemplate(user.name, otp),
     });
 
-    // Send OTP via SMS
-    const smsResult = await sendSMS(
-      user.phone,
-      `Your AuthX verification code is: ${otp}. Valid for 5 minutes.`
-    );
-
-    // Check if at least one method succeeded
-    if (!emailResult.success && !smsResult.success) {
+    // Check if email sending succeeded
+    if (!emailResult.success) {
       return res.status(500).json({
         success: false,
         message: 'Failed to send OTP. Please try again.',
@@ -270,14 +244,12 @@ export const login = async (req, res) => {
     if (!identifier || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email/phone and password',
+        message: 'Please provide email and password',
       });
     }
 
-    // Find user by email or phone
-    const user = await User.findOne({
-      $or: [{ email: identifier }, { phone: identifier }],
-    }).select('+password');
+    // Find user by email
+    const user = await User.findOne({ email: identifier }).select('+password');
 
     if (!user) {
       return res.status(401).json({
@@ -317,7 +289,6 @@ export const login = async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
-          phone: user.phone,
           isVerified: user.isVerified,
         },
       },
@@ -341,19 +312,17 @@ export const forgotPassword = async (req, res) => {
     if (!identifier) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email or phone number',
+        message: 'Please provide email',
       });
     }
 
-    // Find user by email or phone
-    const user = await User.findOne({
-      $or: [{ email: identifier }, { phone: identifier }],
-    });
+    // Find user by email
+    const user = await User.findOne({ email: identifier });
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'No account found with this email/phone',
+        message: 'No account found with this email',
       });
     }
 
@@ -374,14 +343,8 @@ export const forgotPassword = async (req, res) => {
       html: resetPasswordEmailTemplate(user.name, otp),
     });
 
-    // Send OTP via SMS
-    const smsResult = await sendSMS(
-      user.phone,
-      `Your AuthX password reset code is: ${otp}. Valid for 5 minutes.`
-    );
-
-    // Check if at least one method succeeded
-    if (!emailResult.success && !smsResult.success) {
+    // Check if email sending succeeded
+    if (!emailResult.success) {
       return res.status(500).json({
         success: false,
         message: 'Failed to send OTP. Please try again.',
@@ -390,7 +353,7 @@ export const forgotPassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Password reset OTP sent to your email and phone.',
+      message: 'Password reset OTP sent to your email.',
       data: {
         userId: user._id,
       },
@@ -494,7 +457,6 @@ export const getMe = async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
-          phone: user.phone,
           isVerified: user.isVerified,
           createdAt: user.createdAt,
         },

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Navbar from '../components/Navbar';
-import { FiUser, FiMail, FiPhone, FiCheckCircle, FiCalendar } from 'react-icons/fi';
+import { FiUser, FiMail, FiCheckCircle, FiCalendar } from 'react-icons/fi';
 
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
@@ -62,14 +62,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
-                <FiPhone className="text-primary-600 text-xl mt-1" />
-                <div>
-                  <p className="text-sm text-gray-600">Phone Number</p>
-                  <p className="text-lg font-semibold text-gray-900">{user?.phone}</p>
-                </div>
-              </div>
-
               {user?.createdAt && (
                 <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
                   <FiCalendar className="text-primary-600 text-xl mt-1" />
@@ -106,16 +98,6 @@ const Dashboard = () => {
                     <p className="text-2xl font-bold text-blue-900">Verified</p>
                   </div>
                   <div className="text-4xl">📧</div>
-                </div>
-              </div>
-
-              <div className="p-6 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border-2 border-purple-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-purple-700 font-medium">Phone Verification</p>
-                    <p className="text-2xl font-bold text-purple-900">Verified</p>
-                  </div>
-                  <div className="text-4xl">📱</div>
                 </div>
               </div>
 

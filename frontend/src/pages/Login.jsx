@@ -18,22 +18,39 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { isLoading, isError, isSuccess, message, token } = useSelector(
+  const { isLoading, isError, isSuccess, message, token, tempUserId } = useSelector(
     (state) => state.auth
   );
 
   useEffect(() => {
+    console.log('Login useEffect - isError:', isError, 'tempUserId:', tempUserId, 'message:', message);
+    
     if (isError) {
       toast.error(message);
+      
+      // If tempUserId is set, it means account is unverified - redirect to verify OTP
+      if (tempUserId) {
+        console.log('Unverified account detected, redirecting to verify-otp in 1.5s');
+        const timer = setTimeout(() => {
+          console.log('Navigating to /verify-otp now');
+          // Don't call reset() - let VerifyOTP page handle state
+          navigate('/verify-otp');
+        }, 1500); // Wait 1.5 seconds so user can see the error message
+        
+        return () => clearTimeout(timer); // Cleanup timer
+      } else {
+        // Only reset if not redirecting to verify OTP
+        console.log('Regular error, resetting state');
+        dispatch(reset());
+      }
     }
 
     if (isSuccess && token) {
       toast.success(message);
       navigate('/dashboard');
+      dispatch(reset());
     }
-
-    dispatch(reset());
-  }, [isError, isSuccess, message, token, navigate, dispatch]);
+  }, [isError, isSuccess, message, token, tempUserId, navigate, dispatch]);
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -66,17 +83,17 @@ const Login = () => {
           <form onSubmit={onSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email or Phone Number
+                Email
               </label>
               <div className="relative">
                 <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
-                  type="text"
+                  type="email"
                   name="identifier"
                   value={identifier}
                   onChange={onChange}
                   className="input-field pl-10"
-                  placeholder="john@example.com or +1234567890"
+                  placeholder="john@example.com"
                   required
                 />
               </div>

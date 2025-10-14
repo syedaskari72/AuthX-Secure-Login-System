@@ -4,6 +4,7 @@ import authService from '../../services/authService';
 // Get user from localStorage
 const user = JSON.parse(localStorage.getItem('user'));
 const token = localStorage.getItem('authToken');
+const tempUserId = sessionStorage.getItem('tempUserId'); // Get tempUserId from sessionStorage
 
 const initialState = {
   user: user || null,
@@ -12,7 +13,7 @@ const initialState = {
   isSuccess: false,
   isError: false,
   message: '',
-  tempUserId: null, // For OTP verification
+  tempUserId: tempUserId || null, // For OTP verification - restored from sessionStorage
   tempResetUserId: null, // For password reset
 };
 
@@ -67,7 +68,8 @@ export const login = createAsyncThunk(
     } catch (error) {
       const message =
         error.response?.data?.message || error.message || 'Login failed';
-      return thunkAPI.rejectWithValue(message);
+      const userId = error.response?.data?.userId; // Capture userId for unverified accounts
+      return thunkAPI.rejectWithValue({ message, userId });
     }
   }
 );
@@ -117,6 +119,7 @@ export const authSlice = createSlice({
     },
     clearTempUserId: (state) => {
       state.tempUserId = null;
+      sessionStorage.removeItem('tempUserId');
     },
     clearTempResetUserId: (state) => {
       state.tempResetUserId = null;
@@ -133,6 +136,8 @@ export const authSlice = createSlice({
         state.isSuccess = true;
         state.tempUserId = action.payload.data.userId;
         state.message = action.payload.message;
+        // Persist to sessionStorage so it survives navigation
+        sessionStorage.setItem('tempUserId', action.payload.data.userId);
       })
       .addCase(signup.rejected, (state, action) => {
         state.isLoading = false;
@@ -150,6 +155,8 @@ export const authSlice = createSlice({
         state.token = action.payload.data.token;
         state.tempUserId = null;
         state.message = action.payload.message;
+        // Clear tempUserId from sessionStorage after successful verification
+        sessionStorage.removeItem('tempUserId');
       })
       .addCase(verifyOTP.rejected, (state, action) => {
         state.isLoading = false;
@@ -184,9 +191,17 @@ export const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload;
+        state.message = action.payload?.message || action.payload;
         state.user = null;
         state.token = null;
+        // If userId is provided, it means account is unverified
+        console.log('login.rejected - payload:', action.payload);
+        if (action.payload?.userId) {
+          console.log('Setting tempUserId to:', action.payload.userId);
+          state.tempUserId = action.payload.userId;
+          // Persist to sessionStorage so it survives navigation
+          sessionStorage.setItem('tempUserId', action.payload.userId);
+        }
       })
       // Forgot Password
       .addCase(forgotPassword.pending, (state) => {
