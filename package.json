@@ -1,0 +1,32 @@
+{
+  "name": "authx",
+  "version": "1.0.0",
+  "description": "Full-Stack MERN Authentication System with OTP Verification",
+  "main": "index.js",
+  "scripts": {
+    "install-backend": "cd backend && npm install",
+    "install-frontend": "cd frontend && npm install",
+    "install-all": "npm run install-backend && npm run install-frontend",
+    "start-backend": "cd backend && npm start",
+    "start-frontend": "cd frontend && npm run dev",
+    "build-frontend": "cd frontend && npm run build",
+    "dev-backend": "cd backend && npm run dev",
+    "dev": "concurrently \"npm run dev-backend\" \"npm run start-frontend\"",
+    "build": "npm run build-frontend",
+    "heroku-postbuild": "npm run install-all && npm run build-frontend"
+  },
+  "keywords": [
+    "authentication",
+    "otp",
+    "jwt",
+    "mern",
+    "react",
+    "nodejs",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
